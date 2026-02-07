@@ -16,6 +16,8 @@ export default class GameScene extends Phaser.Scene {
     this.wave = 1;
     this.gameTime = 0;
     this.isPaused = false;
+    this.currentWaveEnemyCount = 0; // 当前波次总敌人数
+    this.currentWaveKilled = 0; // 当前波次已击杀
 
     // 创建世界边界
     this.physics.world.setBounds(0, 0, GameConfig.width, GameConfig.height);
@@ -39,6 +41,11 @@ export default class GameScene extends Phaser.Scene {
     // 创建UI
     this.createUI();
 
+    // 设置ESC暂停
+    this.input.keyboard.on('keydown-ESC', () => {
+      this.togglePause();
+    });
+
     // 开始第一波
     this.startWave();
 
@@ -46,8 +53,10 @@ export default class GameScene extends Phaser.Scene {
     this.time.addEvent({
       delay: 1000,
       callback: () => {
-        this.gameTime++;
-        this.updateTimeText();
+        if (!this.isPaused) {
+          this.gameTime++;
+          this.updateTimeText();
+        }
       },
       loop: true
     });
@@ -110,6 +119,18 @@ export default class GameScene extends Phaser.Scene {
       fill: '#00ffff',
     });
 
+    // 攻击力文本
+    this.attackText = this.add.text(padding, padding + 55, 'ATK: 0', {
+      font: '16px monospace',
+      fill: '#ff6600',
+    });
+
+    // 剩余敌人文本
+    this.enemyCountText = this.add.text(padding, padding + 75, 'Enemies: 0/0', {
+      font: '16px monospace',
+      fill: '#ff0000',
+    });
+
     // 分数文本
     this.scoreText = this.add.text(GameConfig.width - padding, padding, 'Score: 0', {
       font: '24px monospace',
@@ -127,6 +148,26 @@ export default class GameScene extends Phaser.Scene {
       font: '24px monospace',
       fill: '#ffffff',
     }).setOrigin(0.5, 0);
+
+    // 暂停按钮
+    this.pauseButton = this.add.text(GameConfig.width / 2, padding + 40, '⏸️ 暂停 (ESC)', {
+      font: '18px monospace',
+      fill: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 10, y: 5 },
+    }).setOrigin(0.5, 0).setInteractive({ useHandCursor: true });
+
+    this.pauseButton.on('pointerdown', () => {
+      this.togglePause();
+    });
+
+    this.pauseButton.on('pointerover', () => {
+      this.pauseButton.setStyle({ backgroundColor: '#555555' });
+    });
+
+    this.pauseButton.on('pointerout', () => {
+      this.pauseButton.setStyle({ backgroundColor: '#333333' });
+    });
   }
 
   updateUI() {
@@ -146,6 +187,91 @@ export default class GameScene extends Phaser.Scene {
 
     // 更新等级
     this.levelText.setText(`Lv.${this.player.level}`);
+
+    // 更新攻击力
+    const totalAttack = Math.ceil(this.player.attackPower);
+    this.attackText.setText(`ATK: ${totalAttack}`);
+
+    // 更新剩余敌人数
+    const remainingEnemies = this.enemies.getChildren().filter(e => e.active).length;
+    this.enemyCountText.setText(`Enemies: ${remainingEnemies}/${this.currentWaveEnemyCount}`);
+  }
+
+  togglePause() {
+    this.isPaused = !this.isPaused;
+
+    if (this.isPaused) {
+      // 显示暂停界面
+      this.showPauseMenu();
+      this.pauseButton.setText('▶️ 继续 (ESC)');
+    } else {
+      // 隐藏暂停界面
+      this.hidePauseMenu();
+      this.pauseButton.setText('⏸️ 暂停 (ESC)');
+    }
+  }
+
+  showPauseMenu() {
+    // 创建半透明遮罩
+    this.pauseOverlay = this.add.graphics();
+    this.pauseOverlay.fillStyle(0x000000, 0.7);
+    this.pauseOverlay.fillRect(0, 0, GameConfig.width, GameConfig.height);
+    this.pauseOverlay.setDepth(200);
+
+    // 暂停文字
+    this.pauseText = this.add.text(GameConfig.width / 2, GameConfig.height / 2 - 50, '游戏暂停', {
+      font: '64px monospace',
+      fill: '#ffffff',
+    }).setOrigin(0.5).setDepth(201);
+
+    // 继续按钮
+    this.resumeButton = this.add.text(GameConfig.width / 2, GameConfig.height / 2 + 50, '继续游戏', {
+      font: '32px monospace',
+      fill: '#00ff00',
+      backgroundColor: '#003300',
+      padding: { x: 20, y: 10 },
+    }).setOrigin(0.5).setDepth(201).setInteractive({ useHandCursor: true });
+
+    this.resumeButton.on('pointerover', () => {
+      this.resumeButton.setStyle({ fill: '#ffffff', backgroundColor: '#00ff00' });
+    });
+
+    this.resumeButton.on('pointerout', () => {
+      this.resumeButton.setStyle({ fill: '#00ff00', backgroundColor: '#003300' });
+    });
+
+    this.resumeButton.on('pointerdown', () => {
+      this.togglePause();
+    });
+
+    // 返回菜单按钮
+    this.quitButton = this.add.text(GameConfig.width / 2, GameConfig.height / 2 + 120, '返回菜单', {
+      font: '24px monospace',
+      fill: '#ff0000',
+      backgroundColor: '#330000',
+      padding: { x: 15, y: 8 },
+    }).setOrigin(0.5).setDepth(201).setInteractive({ useHandCursor: true });
+
+    this.quitButton.on('pointerover', () => {
+      this.quitButton.setStyle({ fill: '#ffffff', backgroundColor: '#ff0000' });
+    });
+
+    this.quitButton.on('pointerout', () => {
+      this.quitButton.setStyle({ fill: '#ff0000', backgroundColor: '#330000' });
+    });
+
+    this.quitButton.on('pointerdown', () => {
+      this.scene.start('MenuScene');
+    });
+  }
+
+  hidePauseMenu() {
+    if (this.pauseOverlay) {
+      this.pauseOverlay.destroy();
+      this.pauseText.destroy();
+      this.resumeButton.destroy();
+      this.quitButton.destroy();
+    }
   }
 
   updateTimeText() {
@@ -173,6 +299,9 @@ export default class GameScene extends Phaser.Scene {
     const enemyCount = GameConfig.waves.baseEnemyCount +
       (this.wave - 1) * GameConfig.waves.enemyIncrement;
 
+    this.currentWaveEnemyCount = enemyCount;
+    this.currentWaveKilled = 0;
+
     const enemyTypes = ['zombie', 'runner', 'tank'];
 
     for (let i = 0; i < enemyCount; i++) {
@@ -184,7 +313,7 @@ export default class GameScene extends Phaser.Scene {
 
     // 波次完成检测
     this.time.delayedCall(enemyCount * GameConfig.waves.spawnInterval + 10000, () => {
-      if (this.enemies.getChildren().length === 0) {
+      if (this.enemies.getChildren().filter(e => e.active).length === 0) {
         this.wave++;
         this.startWave();
       }
@@ -198,6 +327,9 @@ export default class GameScene extends Phaser.Scene {
     const boss = new Enemy(this, x, y, 'boss');
     this.enemies.add(boss);
 
+    this.currentWaveEnemyCount = 1;
+    this.currentWaveKilled = 0;
+
     // Boss出现提示
     const warningText = this.add.text(GameConfig.width / 2, GameConfig.height / 2,
       'BOSS 来袭!', {
@@ -205,7 +337,7 @@ export default class GameScene extends Phaser.Scene {
       fill: '#ff0000',
       stroke: '#000000',
       strokeThickness: 8,
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(150);
 
     this.tweens.add({
       targets: warningText,
@@ -271,7 +403,8 @@ export default class GameScene extends Phaser.Scene {
     enemy.takeDamage(bullet.damage);
 
     if (!enemy.active) {
-      this.player.kills++;
+      this.player.onKillEnemy();
+      this.currentWaveKilled++;
     }
   }
 

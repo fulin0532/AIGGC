@@ -17,6 +17,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.attackPower = GameConfig.player.baseAttack;
     this.attackSpeed = GameConfig.player.attackSpeed;
 
+    // 额外属性
+    this.xpMultiplier = 1.0; // 经验获取倍率
+    this.criticalChance = 0; // 暴击几率
+    this.lifeSteal = 0; // 生命偷取
+    this.weaponRange = 1.0; // 射程倍率
+    this.projectileSpeed = 1.0; // 弹速倍率
+
     // 等级和经验
     this.level = 1;
     this.xp = 0;
@@ -86,8 +93,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       nearestEnemy.x, nearestEnemy.y
     );
 
-    if (distance <= weapon.range) {
-      this.shoot(nearestEnemy);
+    // 应用射程倍率
+    if (distance <= weapon.range * this.weaponRange) {
+      this.shoot(nearestEnemy, weapon);
       this.lastFireTime = time;
     }
   }
@@ -113,8 +121,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     return nearest;
   }
 
-  shoot(target) {
-    const weapon = GameConfig.weapons[this.currentWeapon];
+  shoot(target, weapon) {
     const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
 
     if (weapon.pellets) {
@@ -131,7 +138,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   createBullet(angle, weapon) {
     const bullet = this.scene.bullets.get(this.x, this.y, 'bullet');
     if (bullet) {
-      bullet.fire(angle, weapon, this.attackPower);
+      // 应用暴击
+      let finalDamage = this.attackPower;
+      const isCritical = Math.random() < this.criticalChance;
+      if (isCritical) {
+        finalDamage *= 2;
+        // 可以在这里添加暴击视觉效果
+      }
+
+      // 应用弹速和射程倍率
+      const modifiedWeapon = {
+        ...weapon,
+        projectileSpeed: weapon.projectileSpeed * this.projectileSpeed,
+        range: weapon.range * this.weaponRange,
+      };
+
+      bullet.fire(angle, modifiedWeapon, finalDamage, isCritical);
     }
   }
 
@@ -154,7 +176,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   gainXP(amount) {
-    this.xp += amount;
+    this.xp += amount * this.xpMultiplier;
 
     if (this.xp >= this.xpToNextLevel) {
       this.levelUp();
@@ -192,6 +214,30 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.attackSpeed *= effect.attackSpeed;
     }
 
+    if (effect.range) {
+      this.weaponRange *= effect.range;
+    }
+
+    if (effect.projectileSpeed) {
+      this.projectileSpeed *= effect.projectileSpeed;
+    }
+
+    if (effect.healNow) {
+      this.heal(effect.healNow);
+    }
+
+    if (effect.xpMultiplier) {
+      this.xpMultiplier *= effect.xpMultiplier;
+    }
+
+    if (effect.criticalChance) {
+      this.criticalChance += effect.criticalChance;
+    }
+
+    if (effect.lifeSteal) {
+      this.lifeSteal += effect.lifeSteal;
+    }
+
     if (effect.newWeapon) {
       // 解锁新武器
       const availableWeapons = Object.keys(GameConfig.weapons).filter(
@@ -201,6 +247,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         const newWeapon = Phaser.Utils.Array.GetRandom(availableWeapons);
         this.weapons.push(newWeapon);
       }
+    }
+  }
+
+  onKillEnemy() {
+    this.kills++;
+
+    // 生命偷取
+    if (this.lifeSteal > 0) {
+      this.heal(this.lifeSteal);
     }
   }
 

@@ -9,13 +9,22 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.damage = 0;
   }
 
-  fire(angle, weapon, playerAttack) {
+  fire(angle, weapon, playerAttack, isCritical = false) {
     this.setActive(true);
     this.setVisible(true);
 
     this.speed = weapon.projectileSpeed;
     this.damage = weapon.damage + playerAttack;
     this.lifespan = weapon.range / weapon.projectileSpeed * 1000;
+
+    // 暴击视觉效果
+    if (isCritical) {
+      this.setTint(0xff0000);
+      this.setScale(1.5);
+    } else {
+      this.clearTint();
+      this.setScale(1);
+    }
 
     this.setRotation(angle);
 
