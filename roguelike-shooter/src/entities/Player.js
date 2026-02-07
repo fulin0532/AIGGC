@@ -37,6 +37,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     // 统计
     this.kills = 0;
 
+    // 动画相关
+    this.baseY = y; // 记录基础Y坐标
+    this.bounceOffset = 0; // 跳动偏移
+    this.bounceTime = 0; // 跳动时间计数器
+    this.isMoving = false; // 是否在移动
+
     // 设置碰撞体
     this.setCollideWorldBounds(true);
     this.setScale(1);
@@ -51,11 +57,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(time, enemies) {
-    this.handleMovement();
+    this.handleMovement(time);
     this.autoShoot(time, enemies);
+    this.updateBounceAnimation(time);
   }
 
-  handleMovement() {
+  handleMovement(time) {
     const velocity = new Phaser.Math.Vector2(0, 0);
 
     if (this.cursors.w.isDown) {
@@ -74,6 +81,37 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     velocity.scale(this.speed);
 
     this.setVelocity(velocity.x, velocity.y);
+
+    // 检测是否在移动
+    this.isMoving = velocity.x !== 0 || velocity.y !== 0;
+  }
+
+  updateBounceAnimation(time) {
+    if (this.isMoving) {
+      // 移动时的跳动效果
+      // 频率：每200ms完成一次跳动周期
+      const bounceFrequency = 200; // 毫秒
+      const bounceHeight = 3; // 跳动高度（像素）
+
+      // 使用正弦波创建平滑的上下跳动
+      this.bounceTime = time;
+      const cycle = (time % bounceFrequency) / bounceFrequency;
+      this.bounceOffset = Math.sin(cycle * Math.PI * 2) * bounceHeight;
+
+      // 应用跳动偏移（只影响显示位置，不影响物理碰撞）
+      this.setY(this.y - this.bounceOffset + (this.lastBounceOffset || 0));
+      this.lastBounceOffset = this.bounceOffset;
+    } else {
+      // 静止时平滑回到正常位置
+      if (Math.abs(this.bounceOffset) > 0.1) {
+        this.bounceOffset *= 0.8; // 缓慢归零
+        this.setY(this.y - this.bounceOffset + (this.lastBounceOffset || 0));
+        this.lastBounceOffset = this.bounceOffset;
+      } else {
+        this.bounceOffset = 0;
+        this.lastBounceOffset = 0;
+      }
+    }
   }
 
   autoShoot(time, enemies) {
