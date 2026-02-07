@@ -306,6 +306,9 @@ export default class GameScene extends Phaser.Scene {
     const startY = 250;
     const spacing = 120;
 
+    // 存储所有选项的UI元素，方便统一清理
+    const uiElements = [];
+
     selectedUpgrades.forEach((key, index) => {
       const upgrade = GameConfig.upgrades[key];
       const y = startY + index * spacing;
@@ -332,6 +335,9 @@ export default class GameScene extends Phaser.Scene {
         fill: '#cccccc',
       }).setOrigin(0.5).setDepth(102);
 
+      // 将这个选项的UI元素存入数组
+      uiElements.push({ bg, nameText, descText });
+
       // 鼠标悬停效果
       bg.on('pointerover', () => {
         bg.clear();
@@ -348,17 +354,16 @@ export default class GameScene extends Phaser.Scene {
       // 点击选择
       bg.on('pointerdown', () => {
         this.player.applyUpgrade(upgrade);
+
+        // 销毁遮罩和标题
         overlay.destroy();
         title.destroy();
-        bg.destroy();
-        nameText.destroy();
-        descText.destroy();
 
-        // 清理其他选项
-        selectedUpgrades.forEach((k, i) => {
-          if (i !== index) {
-            // 其他选项已在上面统一清理
-          }
+        // 销毁所有选项的UI元素
+        uiElements.forEach(element => {
+          element.bg.destroy();
+          element.nameText.destroy();
+          element.descText.destroy();
         });
 
         this.isPaused = false;
