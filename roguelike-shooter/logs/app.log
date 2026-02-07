@@ -1,0 +1,10 @@
+
+> roguelike-shooter@1.0.0 dev
+> vite --port 8080 --host 0.0.0.0
+
+Port 8080 is in use, trying another one...
+
+  VITE v7.3.1  ready in 348 ms
+
+  ➜  Local:   http://localhost:8081/
+  ➜  Network: http://10.36.17.25:8081/

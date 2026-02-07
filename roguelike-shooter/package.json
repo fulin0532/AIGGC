@@ -1,0 +1,18 @@
+{
+  "name": "roguelike-shooter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite --port 8080 --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "俯视角肉鸽射击游戏，参考《吸血鬼幸存者》，采用Phaser 3引擎开发",
+  "devDependencies": {
+    "phaser": "^3.90.0",
+    "vite": "^7.3.1"
+  }
+}
