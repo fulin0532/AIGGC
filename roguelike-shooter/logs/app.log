@@ -22,3 +22,6 @@ Port 8080 is in use, trying another one...
 2:40:30 PM [vite] (client) page reload src/scenes/GameScene.js
 2:40:47 PM [vite] (client) page reload src/scenes/GameScene.js
 2:40:59 PM [vite] (client) page reload src/scenes/GameScene.js
+2:48:46 PM [vite] (client) page reload src/entities/Enemy.js
+2:49:01 PM [vite] (client) page reload src/entities/Enemy.js
+2:49:26 PM [vite] (client) page reload src/scenes/BootScene.js

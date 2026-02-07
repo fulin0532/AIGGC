@@ -58,12 +58,8 @@ export default class BootScene extends Phaser.Scene {
 
   createPlaceholderAssets() {
     // 创建占位符图形作为临时资源
-    // 玩家
-    const playerGraphics = this.add.graphics();
-    playerGraphics.fillStyle(0x00ff00, 1);
-    playerGraphics.fillRect(0, 0, 32, 32);
-    playerGraphics.generateTexture('player', 32, 32);
-    playerGraphics.destroy();
+    // 玩家 - 可爱的柯基
+    this.createCorgiSprite();
 
     // 子弹
     const bulletGraphics = this.add.graphics();
@@ -106,6 +102,70 @@ export default class BootScene extends Phaser.Scene {
     xpGraphics.fillCircle(6, 6, 6);
     xpGraphics.generateTexture('xp', 12, 12);
     xpGraphics.destroy();
+  }
+
+  createCorgiSprite() {
+    // 创建一个可爱的像素风格柯基
+    const corgi = this.add.graphics();
+
+    // 身体颜色
+    const bodyColor = 0xD2691E; // 棕色
+    const whiteColor = 0xFFFFFF; // 白色
+    const blackColor = 0x000000; // 黑色
+    const noseColor = 0x8B4513; // 深棕色
+
+    // 身体（矩形）
+    corgi.fillStyle(bodyColor, 1);
+    corgi.fillRect(8, 12, 16, 12); // 身体
+
+    // 白色肚子
+    corgi.fillStyle(whiteColor, 1);
+    corgi.fillRect(10, 16, 12, 8);
+
+    // 头部
+    corgi.fillStyle(bodyColor, 1);
+    corgi.fillRect(4, 8, 12, 8); // 头
+
+    // 白色脸颊
+    corgi.fillStyle(whiteColor, 1);
+    corgi.fillRect(6, 10, 8, 4);
+
+    // 耳朵（左右）
+    corgi.fillStyle(bodyColor, 1);
+    corgi.fillRect(4, 6, 3, 4); // 左耳
+    corgi.fillRect(13, 6, 3, 4); // 右耳
+
+    // 眼睛（左右）
+    corgi.fillStyle(blackColor, 1);
+    corgi.fillRect(7, 10, 2, 2); // 左眼
+    corgi.fillRect(11, 10, 2, 2); // 右眼
+
+    // 鼻子
+    corgi.fillStyle(noseColor, 1);
+    corgi.fillRect(9, 13, 2, 2);
+
+    // 短腿（柯基特色！）
+    corgi.fillStyle(bodyColor, 1);
+    corgi.fillRect(10, 24, 3, 4); // 左前腿
+    corgi.fillRect(17, 24, 3, 4); // 右前腿
+    corgi.fillRect(10, 24, 3, 4); // 左后腿
+    corgi.fillRect(17, 24, 3, 4); // 右后腿
+
+    // 白色爪子
+    corgi.fillStyle(whiteColor, 1);
+    corgi.fillRect(10, 26, 3, 2); // 左前爪
+    corgi.fillRect(17, 26, 3, 2); // 右前爪
+
+    // 尾巴（可爱的小尾巴）
+    corgi.fillStyle(bodyColor, 1);
+    corgi.fillRect(24, 14, 4, 3);
+
+    // 尾巴尖端（白色）
+    corgi.fillStyle(whiteColor, 1);
+    corgi.fillRect(26, 14, 2, 3);
+
+    corgi.generateTexture('player', 32, 32);
+    corgi.destroy();
   }
 
   create() {

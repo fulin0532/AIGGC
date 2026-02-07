@@ -48,6 +48,15 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     );
 
     this.healthBar = this.scene.add.graphics();
+
+    // 创建血量数字文本
+    this.healthText = this.scene.add.text(this.x, this.y + barY - 8, '', {
+      font: '12px monospace',
+      fill: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 2,
+    }).setOrigin(0.5);
+
     this.updateHealthBar();
   }
 
@@ -80,6 +89,12 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         barWidth,
         barHeight
       );
+    }
+
+    // 更新血量数字
+    if (this.healthText) {
+      this.healthText.setPosition(this.x, this.y + barY - 8);
+      this.healthText.setText(`${Math.ceil(this.health)}/${this.maxHealth}`);
     }
   }
 
@@ -142,7 +157,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     // 增加分数
     this.scene.addScore(this.score);
 
-    // 清理血条
+    // 清理血条和血量文本
     if (this.healthBar) {
       this.healthBar.destroy();
       this.healthBar = null;
@@ -150,6 +165,10 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (this.healthBarBg) {
       this.healthBarBg.destroy();
       this.healthBarBg = null;
+    }
+    if (this.healthText) {
+      this.healthText.destroy();
+      this.healthText = null;
     }
 
     // 播放死亡效果（闪烁）
@@ -169,6 +188,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     if (this.healthBarBg) {
       this.healthBarBg.destroy();
+    }
+    if (this.healthText) {
+      this.healthText.destroy();
     }
     super.destroy();
   }
