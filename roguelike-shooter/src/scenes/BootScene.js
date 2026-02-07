@@ -68,38 +68,87 @@ export default class BootScene extends Phaser.Scene {
     bulletGraphics.generateTexture('bullet', 8, 8);
     bulletGraphics.destroy();
 
-    // 僵尸敌人
+    // 僵尸球球 - 红色小球（慢悠悠）
     const zombieGraphics = this.add.graphics();
+    // 主体球
+    zombieGraphics.fillStyle(0xff4444, 1);
+    zombieGraphics.fillCircle(14, 14, 12);
+    // 高光效果
+    zombieGraphics.fillStyle(0xff8888, 0.6);
+    zombieGraphics.fillCircle(10, 10, 4);
+    // 可爱的表情
+    zombieGraphics.fillStyle(0x000000, 1);
+    zombieGraphics.fillCircle(10, 12, 2); // 左眼
+    zombieGraphics.fillCircle(18, 12, 2); // 右眼
     zombieGraphics.fillStyle(0xff0000, 1);
-    zombieGraphics.fillRect(0, 0, 28, 28);
+    zombieGraphics.fillEllipse(14, 18, 6, 3); // 嘴巴
     zombieGraphics.generateTexture('zombie', 28, 28);
     zombieGraphics.destroy();
 
-    // 奔跑者敌人
+    // 奔跑者球球 - 橙色小球（快速弹跳）
     const runnerGraphics = this.add.graphics();
-    runnerGraphics.fillStyle(0xff6600, 1);
-    runnerGraphics.fillRect(0, 0, 24, 24);
+    // 主体球
+    runnerGraphics.fillStyle(0xff8800, 1);
+    runnerGraphics.fillCircle(12, 12, 10);
+    // 高光
+    runnerGraphics.fillStyle(0xffbb44, 0.6);
+    runnerGraphics.fillCircle(9, 9, 3);
+    // 兴奋表情
+    runnerGraphics.fillStyle(0x000000, 1);
+    runnerGraphics.fillCircle(8, 10, 2); // 左眼
+    runnerGraphics.fillCircle(16, 10, 2); // 右眼
+    runnerGraphics.beginPath();
+    runnerGraphics.arc(12, 13, 4, 0, Math.PI); // 笑脸
+    runnerGraphics.strokePath();
     runnerGraphics.generateTexture('runner', 24, 24);
     runnerGraphics.destroy();
 
-    // 坦克敌人
+    // 坦克球球 - 深红色大球（又大又硬）
     const tankGraphics = this.add.graphics();
-    tankGraphics.fillStyle(0x660000, 1);
-    tankGraphics.fillRect(0, 0, 40, 40);
+    // 主体球
+    tankGraphics.fillStyle(0x880000, 1);
+    tankGraphics.fillCircle(20, 20, 18);
+    // 高光
+    tankGraphics.fillStyle(0xaa3333, 0.5);
+    tankGraphics.fillCircle(14, 14, 6);
+    // 凶狠表情
+    tankGraphics.fillStyle(0xff0000, 1);
+    tankGraphics.fillCircle(14, 18, 2); // 左眼
+    tankGraphics.fillCircle(26, 18, 2); // 右眼
+    tankGraphics.fillStyle(0x000000, 1);
+    tankGraphics.fillRect(16, 26, 8, 3); // 咬牙
     tankGraphics.generateTexture('tank', 40, 40);
     tankGraphics.destroy();
 
-    // Boss
+    // Boss球球 - 巨大紫色魔法球
     const bossGraphics = this.add.graphics();
+    // 魔法光环
+    bossGraphics.fillStyle(0xaa00ff, 0.3);
+    bossGraphics.fillCircle(32, 32, 30);
+    // 主体球
     bossGraphics.fillStyle(0x8800ff, 1);
-    bossGraphics.fillRect(0, 0, 64, 64);
+    bossGraphics.fillCircle(32, 32, 26);
+    // 多层高光（魔法效果）
+    bossGraphics.fillStyle(0xbb44ff, 0.6);
+    bossGraphics.fillCircle(24, 24, 8);
+    bossGraphics.fillStyle(0xdd88ff, 0.4);
+    bossGraphics.fillCircle(20, 20, 4);
+    // Boss眼神
+    bossGraphics.fillStyle(0xff0000, 1);
+    bossGraphics.fillCircle(24, 30, 3); // 左眼（发红光）
+    bossGraphics.fillCircle(40, 30, 3); // 右眼
+    // 王冠符号
+    bossGraphics.fillStyle(0xffff00, 1);
+    bossGraphics.fillRect(28, 18, 8, 4); // 简化的王冠
     bossGraphics.generateTexture('boss', 64, 64);
     bossGraphics.destroy();
 
-    // 经验宝石
+    // 经验宝石 - 闪亮的星星形
     const xpGraphics = this.add.graphics();
     xpGraphics.fillStyle(0x00ffff, 1);
     xpGraphics.fillCircle(6, 6, 6);
+    xpGraphics.fillStyle(0xffffff, 0.8);
+    xpGraphics.fillCircle(4, 4, 2); // 闪光
     xpGraphics.generateTexture('xp', 12, 12);
     xpGraphics.destroy();
   }
